@@ -1,0 +1,33 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# SQLite Database & Backups
+database/allotment.db
+database/*.sqlite
+database/*.sqlite3
+database/*.db-journal
+
+# Editor/IDE Specific Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Static file caches
+public/uploads/

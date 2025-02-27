@@ -1,0 +1,21 @@
+{
+  "name": "final_allotment_project",
+  "version": "1.0.0",
+  "description": "This project is developed by the students of BCA at Bangalore University (BU). It aims to streamline the allotment of external examiners for BCA lab exams across colleges under BU. The system ensures fair distribution of examiners based on multiple parameters like residential address, college location, and the number of students.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.8.0",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0"
+  }
+}

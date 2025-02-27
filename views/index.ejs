@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BCA Examiner Allotment System</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">Allotment App</div>
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+        <nav>
+            <ul id="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Efficient BCA External Examiner Allotment</h1>
+            <p>Automating the allocation of external examiners for lab exams.</p>
+            <div class="hero-buttons">
+                <a href="/register" class="btn">Register as Faculty</a>
+                <a href="/college-login" class="btn-outline">College Login</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="feature-card">
+            <img src="/assets/registration.svg" alt="Registration">
+            <h3>Examiner Registration</h3>
+            <p>Faculties can register, update availability, and manage their profiles.</p>
+        </div>
+        <div class="feature-card">
+            <img src="/assets/allotment.svg" alt="Allotment">
+            <h3>Smart Allotment</h3>
+            <p>Automated examiner allotment based on pincode and student batch size.</p>
+        </div>
+        <div class="feature-card">
+            <img src="/assets/performance.svg" alt="Performance">
+            <h3>Performance Tracking</h3>
+            <p>Monitor compliance and identify top-performing institutions.</p>
+        </div>
+    </section>
+
+    <!-- Recent Updates -->
+    <section class="updates">
+        <h3>Latest Updates</h3>
+        <ul>
+            <li>📢 Examiner allotment for the upcoming lab exams is now live.</li>
+            <li>🚨 Reminder: Colleges must confirm examiner availability by the deadline.</li>
+            <li>📊 Performance reports for the last semester's examiner participation are available.</li>
+        </ul>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact">
+        <h3>Need Help?</h3>
+        <p>Contact our support team at <a href="mailto:support@examinerallotment.com">support@examinerallotment.com</a></p>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© <%= new Date().getFullYear() %> BCA Examiner Allotment. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("nav-menu").classList.toggle("active");
+        }
+        window.onload = function() {
+            window.scrollTo(0, 0);
+        };
+    </script>
+
+</body>
+</html>
