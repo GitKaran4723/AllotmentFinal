@@ -57,9 +57,9 @@ const fetchGitHubContent = async () => {
 fetchGitHubContent();
 setInterval(fetchGitHubContent, 5 * 60 * 1000); // Refresh every 5 minutes
 
-// Define the log directory and file path
-const logDir = path.join(__dirname, "logs");
+const logDir = path.join(__dirname, "..", "chatLogs"); // Moves the logs folder one level up
 const logFilePath = path.join(logDir, "logs.json");
+
 
 // Ensure the log directory exists
 if (!fs.existsSync(logDir)) {
