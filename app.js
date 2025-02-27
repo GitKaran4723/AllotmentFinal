@@ -43,7 +43,7 @@ db.connect((err) => {
 
 let storedContent = "";
 const githubUrl =
-  "https://raw.githubusercontent.com/GitKaran4723/unidata/refs/heads/main/data.txt"; // Replace with actual URL
+  "https://raw.githubusercontent.com/Monisha-07590/bcadata/refs/heads/main/projectdata"; // Replace with actual URL
 
 // Function to fetch and update content from GitHub
 const fetchGitHubContent = async () => {
