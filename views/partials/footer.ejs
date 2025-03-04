@@ -1,19 +1,20 @@
-    <!-- Contact Section -->
-    <section class="contact">
-        <h3>Need Help?</h3>
-        <p>Contact our support team at <a href="mailto:support@examinerallotment.com">support@examinerallotment.com</a></p>
-    </section>
+<!-- Contact Section -->
+<section class="contact">
+    <h3>Need Help?</h3>
+    <p>Contact our support team at <a href="mailto:support@examinerallotment.com">support@examinerallotment.com</a></p>
+</section>
 
-    <!-- Footer -->
-    <footer>
-        <p>© <%= new Date().getFullYear() %> BCA Examiner Allotment. All rights reserved.</p>
-    </footer>
+<!-- Footer -->
+<footer>
+    <p>© <%= new Date().getFullYear() %> BCA Examiner Allotment. All rights reserved.</p>
+</footer>
 
 <script>
     function toggleMenu() {
-        document.getElementById("nav-menu").classList.toggle("active");
+        document.querySelector('nav').classList.toggle('active');
     }
-    window.onload = function() {
+
+    window.onload = function () {
         window.scrollTo(0, 0);
     };
 </script>

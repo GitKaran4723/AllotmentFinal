@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BCA Examiner Allotment System</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/scripts.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
 </head>
+
 <body>
 
     <!-- Header -->
@@ -61,17 +66,19 @@
             <li>🚨 Reminder: Colleges must confirm examiner availability by the deadline.</li>
             <li>📊 Performance reports for the last semester's examiner participation are available.</li>
         </ul>
-    
+
         <div class="pdf-download">
-            <a href="/files/allotted_teachers.pdf" class="btn" target="_blank">📄 Download Allotted Teachers List for - Date</a>
+            <a href="/files/allotted_teachers.pdf" class="btn" target="_blank">📄 Download Allotted Teachers List for -
+                Date</a>
         </div>
     </section>
-    
+
 
     <!-- Contact Section -->
     <section class="contact">
         <h3>Need Help?</h3>
-        <p>Contact our support team at <a href="mailto:support@examinerallotment.com">support@examinerallotment.com</a></p>
+        <p>Contact our support team at <a href="mailto:support@examinerallotment.com">support@examinerallotment.com</a>
+        </p>
     </section>
 
     <!-- Footer -->
@@ -81,12 +88,16 @@
 
     <script>
         function toggleMenu() {
-            document.getElementById("nav-menu").classList.toggle("active");
+            document.querySelector('nav').classList.toggle('active');
         }
-        window.onload = function() {
+
+        window.onload = function () {
             window.scrollTo(0, 0);
         };
     </script>
 
+
+
 </body>
+
 </html>
