@@ -4,6 +4,7 @@
   "description": "This project is developed by the students of BCA at Bangalore University (BU). It aims to streamline the allotment of external examiners for BCA lab exams across colleges under BU. The system ensures fair distribution of examiners based on multiple parameters like residential address, college location, and the number of students.",
   "main": "index.js",
   "scripts": {
+    "start":"node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -17,6 +18,8 @@
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
-    "mysql2": "^3.12.0"
+    "express-session": "^1.18.1",
+    "mysql2": "^3.12.0",
+    "nodemon": "^3.1.9"
   }
 }

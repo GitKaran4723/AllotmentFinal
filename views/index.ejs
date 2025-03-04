@@ -15,10 +15,9 @@
         <nav>
             <ul id="nav-menu">
                 <li><a href="/">Home</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Features</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="#">Login</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/features">Features</a></li>
+                <li><a href="/contact">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -30,7 +29,7 @@
             <p>Automating the allocation of external examiners for lab exams.</p>
             <div class="hero-buttons">
                 <a href="/register" class="btn">Register as Faculty</a>
-                <a href="/college-login" class="btn-outline">College Login</a>
+                <a href="/college/login" class="btn-outline">College Login</a>
             </div>
         </div>
     </section>
@@ -38,17 +37,17 @@
     <!-- Features Section -->
     <section class="features">
         <div class="feature-card">
-            <img src="/assets/registration.svg" alt="Registration">
+            <img src="/images/image_allotment1.jpg" alt="Registration">
             <h3>Examiner Registration</h3>
             <p>Faculties can register, update availability, and manage their profiles.</p>
         </div>
         <div class="feature-card">
-            <img src="/assets/allotment.svg" alt="Allotment">
+            <img src="/images/image2_allotment.jpg" alt="Allotment">
             <h3>Smart Allotment</h3>
             <p>Automated examiner allotment based on pincode and student batch size.</p>
         </div>
         <div class="feature-card">
-            <img src="/assets/performance.svg" alt="Performance">
+            <img src="/images/performance.jpg" alt="Performance">
             <h3>Performance Tracking</h3>
             <p>Monitor compliance and identify top-performing institutions.</p>
         </div>
@@ -62,7 +61,12 @@
             <li>🚨 Reminder: Colleges must confirm examiner availability by the deadline.</li>
             <li>📊 Performance reports for the last semester's examiner participation are available.</li>
         </ul>
+    
+        <div class="pdf-download">
+            <a href="/files/allotted_teachers.pdf" class="btn" target="_blank">📄 Download Allotted Teachers List for - Date</a>
+        </div>
     </section>
+    
 
     <!-- Contact Section -->
     <section class="contact">

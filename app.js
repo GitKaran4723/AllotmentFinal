@@ -7,7 +7,10 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const genAIService = require("./services/genAIService");
+const db = require("./config/db");
 const cors = require("cors");
+const session = require("express-session");
+const collegeRoutes = require("./routes/collegeRoutes");
 
 const app = express();
 const port = 3000;
@@ -23,23 +26,15 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Create MySQL connection
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-});
 
-// Connect to MySQL
-db.connect((err) => {
-  if (err) {
-    console.error("Database connection failed:", err);
-    return;
-  }
-  console.log("Connected to MySQL database.");
-});
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || "your_secret_key",
+  resave: false,
+  saveUninitialized: false,
+}));
+
+app.use("/college", collegeRoutes);
 
 let storedContent = "";
 const githubUrl =
@@ -109,6 +104,7 @@ app.post("/ask-gemini", async (req, res) => {
   }
 });
 
+
 // API to fetch chat logs
 app.get("/fetch_chats", (req, res) => {
   fs.readFile(logFilePath, "utf8", (err, data) => {
@@ -123,6 +119,18 @@ app.get("/fetch_chats", (req, res) => {
 // Simple route
 app.get("/", (req, res) => {
   res.render("index", { title: "Home | My Website" });
+});
+
+app.get("/about", (req, res) => {
+  res.render("about");
+});
+
+app.get("/features", (req, res) => {
+  res.render("features");
+});
+
+app.get("/contact", (req, res) => {
+  res.render("contact");
 });
 
 // Fetch data from database

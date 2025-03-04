@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Dashboard | BCA Examiner Allotment</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+    <!-- Private Header for logged-in colleges -->
+    <%- include('partials/header_private') %>
+
+    <!-- Dashboard Welcome Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome, <%= college.college_name %></h1>
+            <p>Manage your examiner allotments, batches, subjects, and view your performance.</p>
+        </div>
+    </section>
+
+    <!-- Features on Dashboard -->
+    <section class="features">
+        <div class="feature-card">
+            <img src="/images/teacher.png" alt="Teachers">
+            <h3>Teachers</h3>
+            <p>View and manage external examiners assigned to your college.</p>
+            <a href="/college/teachers" class="btn">Manage Teachers</a>
+        </div>
+
+        <div class="feature-card">
+            <img src="/images/batches.png" alt="Batches">
+            <h3>Batches</h3>
+            <p>Select and manage student batches for upcoming practical exams.</p>
+            <a href="/college/batches" class="btn">Manage Batches</a>
+        </div>
+
+        <div class="feature-card">
+            <img src="/images/subjects.png" alt="Subjects">
+            <h3>Subjects</h3>
+            <p>Assign and update subjects for external examinations.</p>
+            <a href="/college/subjects" class="btn">Manage Subjects</a>
+        </div>
+
+        <div class="feature-card">
+            <img src="/images/ranking.png" alt="Ranking">
+            <h3>Your Ranking</h3>
+            <p>Check your college's performance ranking.</p>
+            <a href="/college/ranking" class="btn">View Ranking</a>
+        </div>
+
+        <div class="feature-card">
+            <img src="/images/college.png" alt="College Profile">
+            <h3>College Profile</h3>
+            <p>View and update your college details and contact information.</p>
+            <a href="/college/profile" class="btn">View Profile</a>
+        </div>
+    </section>
+
+    <%- include('partials/footer') %>
+
+</body>
+</html>
