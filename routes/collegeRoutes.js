@@ -105,8 +105,15 @@ router.get('/profile/:id', ensureCollegeLoggedIn, (req, res) => {
   const profileCollegeId = req.params.id;
   const loggedInCollegeCode = req.session.college.college_code;
 
+  const query = `
+    SELECT c.*, d.college_name 
+    FROM College c 
+    JOIN dummy_college d ON c.college_code = d.college_code 
+    WHERE c.college_id = ? AND c.college_code = ?
+  `;
+
   db.query(
-    'SELECT * FROM College WHERE college_id = ? AND college_code = ?',
+    query,
     [profileCollegeId, loggedInCollegeCode],
     (err, results) => {
       if (err) {
@@ -122,6 +129,7 @@ router.get('/profile/:id', ensureCollegeLoggedIn, (req, res) => {
     }
   );
 });
+
 
 // Show Edit Profile Page
 router.get('/edit/:id', ensureCollegeLoggedIn, (req, res) => {
