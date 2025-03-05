@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>College Login | BCA Examiner Allotment</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/features.css">
+    <script src="/js/scripts.js"></script>
     <style>
         .password-wrapper {
             position: relative;
@@ -55,6 +57,14 @@
 <body>
 
     <%- include('partials/header') %>
+
+    <% if (typeof error !== "undefined") { %>
+        <div id="errorPopup" class="error-popup">
+          <span><%= error %></span>
+          <button onclick="closePopup()">✖</button>
+        </div>
+      <% } %>
+      
 
     <!-- College Login Section -->
     <section class="hero">

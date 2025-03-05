@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College Profile | BCA Examiner Allotment</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Private Header -->
+  <%- include('../partials/header_private', { college: college }) %>
+
+  <!-- College Profile Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>College Profile</h1>
+      <p>Manage your college details and contact information.</p>
+    </div>
+  </section>
+
+  <!-- Profile Section with Table -->
+  <section class="features">
+    <div class="feature-card" style="max-width: 600px; width: 100%;">
+      
+      <table style="width: 100%; border-collapse: collapse;">
+        <tbody>
+          <tr>
+            <th style="text-align: left; padding: 10px;">College Code</th>
+            <td class="profileDetails" style="padding: 10px;"><%= college.college_code %></td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 10px;">College Address</th>
+            <td class="profileDetails" style="padding: 10px;"><%= college.college_address || 'Not Provided' %></td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 10px;">Pincode</th>
+            <td class="profileDetails" style="padding: 10px;"><%= college.college_pincode || 'Not Provided' %></td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 10px;">HOD Name</th>
+            <td class="profileDetails" style="padding: 10px;"><%= college.college_hod || 'Not Provided' %></td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 10px;">HOD Phone</th>
+            <td class="profileDetails" style="padding: 10px;"><%= college.hod_phone || 'Not Provided' %></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="text-center pdf-download mt-4">
+        <a href="/college/edit/<%= college.college_id %>" class="btn">Edit Profile</a>
+      </div>
+
+    </div>
+  </section>
+
+  <%- include('../partials/footer') %>
+
+</body>
+</html>

@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>College Dashboard | BCA Examiner Allotment</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/scripts.js"></script>
 </head>
 <body>
 
     <!-- Private Header for logged-in colleges -->
-    <%- include('partials/header_private') %>
+    <%- include('partials/header_private', { college: college }) %>
 
     <!-- Dashboard Welcome Section -->
     <section class="hero">
         <div class="hero-content">
             <h1>Welcome, <%= college.college_name %></h1>
+           
             <p>Manage your examiner allotments, batches, subjects, and view your performance.</p>
         </div>
     </section>
@@ -53,11 +55,13 @@
             <img src="/images/college.png" alt="College Profile">
             <h3>College Profile</h3>
             <p>View and update your college details and contact information.</p>
-            <a href="/college/profile" class="btn">View Profile</a>
+            <a href="/college/profile/<%= college.college_id %>" class="btn">View Profile</a>
         </div>
     </section>
 
     <%- include('partials/footer') %>
+
+    
 
 </body>
 </html>

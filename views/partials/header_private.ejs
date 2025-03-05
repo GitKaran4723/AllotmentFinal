@@ -1,16 +1,19 @@
 <link rel="stylesheet" href="/css/styles.css">
+<script src="/js/scripts.js"></script>
 <header>
     <div class="logo">College Dashboard</div>
-    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-    <nav>
+    <div id="menu-toggle" class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <nav id="nav">
         <ul id="nav-menu">
             <li><a href="/college/dashboard">Dashboard</a></li>
             <li><a href="/college/teachers">Teachers</a></li>
             <li><a href="/college/subjects">Subjects</a></li>
             <li><a href="/college/batches">Batches</a></li>
             <li><a href="/college/ranking">Your Ranking</a></li>
-            <li><a href="/college/profile">College Profile</a></li>
+            <li><a href="/college/profile/<%= college.college_id %>">College Profile</a></li>
             <li><a href="/college/logout">Logout</a></li>
         </ul>
     </nav>
 </header>
+
+  
