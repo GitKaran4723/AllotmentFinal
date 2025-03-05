@@ -39,16 +39,24 @@
 
         <div class="mb-4">
           <label class="form-label">Pincode</label>
-          <input type="text" class="form-control" name="college_pincode" value="<%= college.college_pincode %>">
+          <select class="form-control" name="college_pincode">
+            <option value="">Select Pincode</option>
+            <% pincodes.forEach(function(pin) { %>
+              <option value="<%= pin.pincode %>" 
+                <%= pin.pincode === college.college_pincode ? 'selected' : '' %>>
+                <%= pin.pincode %> - <%= pin.area_name %>
+              </option>
+            <% }) %>
+          </select>
         </div>
 
         <div class="mb-4">
-          <label class="form-label">HOD Name</label>
+          <label class="form-label">Contact Person Name</label>
           <input type="text" class="form-control" name="college_hod" value="<%= college.college_hod %>">
         </div>
 
         <div class="mb-4">
-          <label class="form-label">HOD Phone</label>
+          <label class="form-label">Contact Person Phone</label>
           <input type="text" class="form-control" name="hod_phone" value="<%= college.hod_phone %>">
         </div>
 

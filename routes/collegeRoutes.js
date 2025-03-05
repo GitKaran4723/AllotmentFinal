@@ -139,14 +139,26 @@ router.get('/edit/:id', ensureCollegeLoggedIn, (req, res) => {
     return res.status(403).send("Unauthorized access");
   }
 
-  db.query('SELECT * FROM College WHERE college_id = ?', [collegeId], (err, results) => {
-    if (err) return res.status(500).send("Database error" , err);
+  // First, fetch the college data
+  db.query('SELECT * FROM College WHERE college_id = ?', [collegeId], (err, collegeResults) => {
+    if (err) return res.status(500).send("Database error: " + err);
 
-    if (!results.length) return res.status(404).send("College not found");
+    if (!collegeResults.length) return res.status(404).send("College not found");
 
-    res.render('college/edit_college_profile', { college: results[0] });
+    const college = collegeResults[0];
+
+    // Now, fetch the pincodes
+    db.query('SELECT pincode, area_name FROM bangalore_pincodes', (err, pincodeResults) => {
+      if (err) return res.status(500).send("Database error: " + err);
+
+      res.render('college/edit_college_profile', {
+        college: college,
+        pincodes: pincodeResults
+      });
+    });
   });
 });
+
 
 // Handle Profile Update
 router.post('/update/:id', ensureCollegeLoggedIn, (req, res) => {
@@ -158,16 +170,28 @@ router.post('/update/:id', ensureCollegeLoggedIn, (req, res) => {
 
   const { college_address, college_pincode, college_hod, hod_phone } = req.body;
 
+  // Check if pincode exists
   db.query(
-    'UPDATE College SET college_address = ?, college_pincode = ?, college_hod = ?, hod_phone = ? WHERE college_id = ?',
-    [college_address, college_pincode, college_hod, hod_phone, collegeId],
-    (err) => {
-      if (err) return res.status(500).send("Database update error");
+    'SELECT pincode FROM bangalore_pincodes WHERE pincode = ?',
+    [college_pincode],
+    (err, results) => {
+      if (err) return res.status(500).send("Database error while checking pincode");
 
-      res.redirect(`/college/profile/${collegeId}`);
+      const validPincode = results.length ? college_pincode : null;
+
+      db.query(
+        'UPDATE College SET college_address = ?, college_pincode = ?, college_hod = ?, hod_phone = ? WHERE college_id = ?',
+        [college_address, validPincode, college_hod, hod_phone, collegeId],
+        (err) => {
+          if (err) return res.status(500).send("Database update error");
+
+          res.redirect(`/college/profile/${collegeId}`);
+        }
+      );
     }
   );
 });
+
 
 
 // Logout
