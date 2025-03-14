@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const db = require("../config/db"); // Adjust if your DB connection is elsewhere
+const db = require("../config/db").promise(); // Use MySQL2's promise API
 
 // College Login Page
 router.get("/login", (req, res) => {
@@ -9,12 +9,19 @@ router.get("/login", (req, res) => {
 });
 
 // Handle Login
-router.post("/login", (req, res) => {
-  const { college_code, password } = req.body;
+router.post("/login", async (req, res) => {
+  try {
+    const { college_code, password } = req.body;
+    if (!college_code || !password) {
+      return res.render("college_login", {
+        error: "❌ College Code and Password are required",
+      });
+    }
 
-  db.query("SELECT * FROM dummy_college WHERE college_code = ?", [college_code], async (err, results) => {
-    if (err) return res.status(500).send("Database error");
-
+    const [results] = await db.query(
+      "SELECT * FROM dummy_college WHERE college_code = ?",
+      [college_code]
+    );
     if (results.length === 0) {
       return res.render("college_login", { error: "❌ Invalid college code" });
     }
@@ -23,181 +30,178 @@ router.post("/login", (req, res) => {
 
     if (!college.password) {
       if (password === college_code) {
-        db.query("SELECT college_id FROM College WHERE college_code = ?", [college_code], (err, collegeResults) => {
-          if (err) return res.status(500).send("Database error fetching college_id");
+        const [collegeResults] = await db.query(
+          "SELECT college_id FROM College WHERE college_code = ?",
+          [college_code]
+        );
 
-          req.session.college = {
-            ...college,
-            college_id: collegeResults.length ? collegeResults[0].college_id : null
-          };
+        req.session.college = {
+          ...college,
+          college_id: collegeResults.length
+            ? collegeResults[0].college_id
+            : null,
+        };
 
-          return res.redirect("/college/set-password");
-        });
+        return res.redirect("/college/set-password");
       } else {
         return res.render("college_login", { error: "❌ Invalid password" });
       }
-      return;
     }
 
     const match = await bcrypt.compare(password, college.password);
     if (match) {
-      db.query("SELECT college_id FROM College WHERE college_code = ?", [college_code], (err, collegeResults) => {
-        if (err) return res.status(500).send("Database error fetching college_id");
+      const [collegeResults] = await db.query(
+        "SELECT college_id FROM College WHERE college_code = ?",
+        [college_code]
+      );
 
-        req.session.college = {
-          ...college,
-          college_id: collegeResults.length ? collegeResults[0].college_id : null
-        };
+      req.session.college = {
+        ...college,
+        college_id: collegeResults.length ? collegeResults[0].college_id : null,
+      };
 
-        return res.redirect("/college/dashboard");
-      });
+      return res.redirect("/college/dashboard");
     } else {
       return res.render("college_login", { error: "❌ Incorrect password" });
     }
-  });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
-
-// ensure college login
+// Ensure College Login
 function ensureCollegeLoggedIn(req, res, next) {
   if (req.session.college) {
-    next();
-  } else {
-    res.redirect('/college/login'); // or your actual login route
+    return next();
   }
+  res.redirect("/college/login");
 }
 
 // Password Setup Page
-router.get("/set-password", (req, res) => {
-  if (!req.session.college) return res.redirect("/college/login");
+router.get("/set-password", ensureCollegeLoggedIn, (req, res) => {
   res.render("set_password");
 });
 
 // Handle New Password
-router.post("/set-password", async (req, res) => {
-  if (!req.session.college) return res.redirect("/college/login");
-
-  const { new_password } = req.body;
-
-  const hashedPassword = await bcrypt.hash(new_password, 10);
-
-  db.query(
-    "UPDATE dummy_college SET password = ? WHERE college_code = ?",
-    [hashedPassword, req.session.college.college_code],
-    (err) => {
-      if (err) return res.status(500).send("Failed to set password");
-
-      req.session.college.password = hashedPassword;
-      res.redirect("/college/dashboard");
+router.post("/set-password", ensureCollegeLoggedIn, async (req, res) => {
+  try {
+    const { new_password } = req.body;
+    if (!new_password || new_password.length < 6) {
+      return res.render("set_password", {
+        error: "❌ Password must be at least 6 characters",
+      });
     }
-  );
+
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+    await db.query(
+      "UPDATE dummy_college SET password = ? WHERE college_code = ?",
+      [hashedPassword, req.session.college.college_code]
+    );
+
+    req.session.college.password = hashedPassword;
+    res.redirect("/college/dashboard");
+  } catch (error) {
+    console.error("Password Update Error:", error);
+    res.status(500).send("Failed to set password");
+  }
 });
 
 // College Dashboard
-router.get("/dashboard", (req, res) => {
-  if (!req.session.college) return res.redirect("/college/login");
+router.get("/dashboard", ensureCollegeLoggedIn, (req, res) => {
   res.render("college_dashboard", { college: req.session.college });
 });
 
 // College Profile Page
-router.get('/profile/:id', ensureCollegeLoggedIn, (req, res) => {
+router.get("/profile/:id", ensureCollegeLoggedIn, async (req, res) => {
+  try {
+    const profileCollegeId = req.params.id;
+    const loggedInCollegeCode = req.session.college.college_code;
 
-  const profileCollegeId = req.params.id;
-  const loggedInCollegeCode = req.session.college.college_code;
+    const [results] = await db.query(
+      `SELECT c.*, d.college_name FROM College c 
+       JOIN dummy_college d ON c.college_code = d.college_code 
+       WHERE c.college_id = ? AND c.college_code = ?`,
+      [profileCollegeId, loggedInCollegeCode]
+    );
 
-  const query = `
-    SELECT c.*, d.college_name 
-    FROM College c 
-    JOIN dummy_college d ON c.college_code = d.college_code 
-    WHERE c.college_id = ? AND c.college_code = ?
-  `;
-
-  db.query(
-    query,
-    [profileCollegeId, loggedInCollegeCode],
-    (err, results) => {
-      if (err) {
-        console.error("Database Error: ", err);
-        return res.status(500).send("Internal Server Error");
-      }
-
-      if (!results.length) {
-        return res.status(403).send("Unauthorized access");
-      }
-
-      res.render('college/college_profile', { college: results[0] });
+    if (results.length === 0) {
+      return res.status(403).send("Unauthorized access");
     }
-  );
-});
 
+    res.render("college/college_profile", { college: results[0] });
+  } catch (error) {
+    console.error("Profile Fetch Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 // Show Edit Profile Page
-router.get('/edit/:id', ensureCollegeLoggedIn, (req, res) => {
-  const collegeId = req.params.id;
+router.get("/edit/:id", ensureCollegeLoggedIn, async (req, res) => {
+  try {
+    const collegeId = req.params.id;
+    if (req.session.college.college_id != collegeId) {
+      return res.status(403).send("Unauthorized access");
+    }
 
-  if (req.session.college.college_id != collegeId) {
-    return res.status(403).send("Unauthorized access");
-  }
+    const [collegeResults] = await db.query(
+      "SELECT * FROM College WHERE college_id = ?",
+      [collegeId]
+    );
+    if (collegeResults.length === 0) {
+      return res.status(404).send("College not found");
+    }
 
-  // First, fetch the college data
-  db.query('SELECT * FROM College WHERE college_id = ?', [collegeId], (err, collegeResults) => {
-    if (err) return res.status(500).send("Database error: " + err);
-
-    if (!collegeResults.length) return res.status(404).send("College not found");
-
-    const college = collegeResults[0];
-
-    // Now, fetch the pincodes
-    db.query('SELECT pincode, area_name FROM bangalore_pincodes', (err, pincodeResults) => {
-      if (err) return res.status(500).send("Database error: " + err);
-
-      res.render('college/edit_college_profile', {
-        college: college,
-        pincodes: pincodeResults
-      });
+    const [pincodeResults] = await db.query(
+      "SELECT pincode, area_name FROM bangalore_pincodes"
+    );
+    res.render("college/edit_college_profile", {
+      college: collegeResults[0],
+      pincodes: pincodeResults,
     });
-  });
+  } catch (error) {
+    console.error("Edit Profile Error:", error);
+    res.status(500).send("Database error");
+  }
 });
-
 
 // Handle Profile Update
-router.post('/update/:id', ensureCollegeLoggedIn, (req, res) => {
-  const collegeId = req.params.id;
-
-  if (req.session.college.college_id != collegeId) {
-    return res.status(403).send("Unauthorized update attempt");
-  }
-
-  const { college_address, college_pincode, college_hod, hod_phone } = req.body;
-
-  // Check if pincode exists
-  db.query(
-    'SELECT pincode FROM bangalore_pincodes WHERE pincode = ?',
-    [college_pincode],
-    (err, results) => {
-      if (err) return res.status(500).send("Database error while checking pincode");
-
-      const validPincode = results.length ? college_pincode : null;
-
-      db.query(
-        'UPDATE College SET college_address = ?, college_pincode = ?, college_hod = ?, hod_phone = ? WHERE college_id = ?',
-        [college_address, validPincode, college_hod, hod_phone, collegeId],
-        (err) => {
-          if (err) return res.status(500).send("Database update error");
-
-          res.redirect(`/college/profile/${collegeId}`);
-        }
-      );
+router.post("/update/:id", ensureCollegeLoggedIn, async (req, res) => {
+  try {
+    const collegeId = req.params.id;
+    if (req.session.college.college_id != collegeId) {
+      return res.status(403).send("Unauthorized update attempt");
     }
-  );
+
+    const { college_address, college_pincode, college_hod, hod_phone } =
+      req.body;
+    if (!college_address || !college_hod || !hod_phone) {
+      return res.status(400).send("❌ All fields are required");
+    }
+
+    const [pincodeResults] = await db.query(
+      "SELECT pincode FROM bangalore_pincodes WHERE pincode = ?",
+      [college_pincode]
+    );
+    const validPincode = pincodeResults.length ? college_pincode : null;
+
+    await db.query(
+      "UPDATE College SET college_address = ?, college_pincode = ?, college_hod = ?, hod_phone = ? WHERE college_id = ?",
+      [college_address, validPincode, college_hod, hod_phone, collegeId]
+    );
+
+    res.redirect(`/college/profile/${collegeId}`);
+  } catch (error) {
+    console.error("Profile Update Error:", error);
+    res.status(500).send("Database update error");
+  }
 });
-
-
 
 // Logout
 router.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.redirect("/college/login");
+  req.session.destroy(() => {
+    res.redirect("/college/login");
+  });
 });
 
 module.exports = router;

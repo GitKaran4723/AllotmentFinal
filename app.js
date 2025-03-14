@@ -7,7 +7,7 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const genAIService = require("./services/genAIService");
-const db = require("./config/db");
+const db = require("./config/db").promise();
 const cors = require("cors");
 const session = require("express-session");
 const collegeRoutes = require("./routes/collegeRoutes");
@@ -26,28 +26,45 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-
 app.use(session({
   secret: process.env.SESSION_SECRET || "your_secret_key",
   resave: false,
   saveUninitialized: false,
 }));
 
+// Middleware to log requests
+const requestLogFile = path.join(__dirname, "logs", "requests.log");
+
+// Ensure the logs directory exists
+if (!fs.existsSync(path.dirname(requestLogFile))) {
+  fs.mkdirSync(path.dirname(requestLogFile), { recursive: true });
+}
+
+app.use((req, res, next) => {
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const logEntry = `[${new Date().toISOString()}] ${ip} ${req.method} ${req.url}\n`;
+
+  fs.appendFile(requestLogFile, logEntry, (err) => {
+    if (err) console.error("❌ Error logging request:", err);
+  });
+
+  console.log(logEntry.trim()); // Log to console as well
+  next();
+});
+
 app.use("/college", collegeRoutes);
 
 let storedContent = "";
-const githubUrl =
-  "https://raw.githubusercontent.com/Monisha-07590/bcadata/refs/heads/main/projectdata"; // Replace with actual URL
+const githubUrl = "https://raw.githubusercontent.com/Monisha-07590/bcadata/refs/heads/main/projectdata";
 
 // Function to fetch and update content from GitHub
 const fetchGitHubContent = async () => {
   try {
     const response = await axios.get(githubUrl);
     storedContent = response.data;
-    console.log("GitHub content updated successfully");
+    console.log("✅ GitHub content updated successfully");
   } catch (error) {
-    console.error("Error fetching GitHub content:", error);
+    console.error("❌ Error fetching GitHub content:", error);
   }
 };
 
@@ -55,7 +72,7 @@ const fetchGitHubContent = async () => {
 fetchGitHubContent();
 setInterval(fetchGitHubContent, 5 * 60 * 1000); // Refresh every 5 minutes
 
-const logDir = path.join(__dirname, "..", "chatLogs"); // Moves the logs folder one level up
+const logDir = path.join(__dirname, "..", "chatLogs");
 const logFilePath = path.join(logDir, "logs.json");
 
 // Ensure the log directory exists
@@ -71,13 +88,9 @@ const logToFile = (question, responseText) => {
     response: responseText,
   };
 
-  fs.appendFile(
-    logFilePath,
-    JSON.stringify(logEntry, null, 2) + ",\n",
-    (err) => {
-      if (err) console.error("Error writing to log file:", err);
-    }
-  );
+  fs.appendFile(logFilePath, JSON.stringify(logEntry, null, 2) + ",\n", (err) => {
+    if (err) console.error("❌ Error writing to log file:", err);
+  });
 };
 
 // API to process user questions using stored content
@@ -85,76 +98,58 @@ app.post("/ask-gemini", async (req, res) => {
   try {
     const userQuestion = req.body.question;
     if (!userQuestion) {
-      return res.status(400).json({ error: "Question is required" });
+      return res.status(400).json({ error: "❌ Question is required" });
     }
 
-    // Process user question with stored content using GenAI service
-    const responseText = await genAIService.processQuestion(
-      storedContent,
-      userQuestion
-    );
-
-    // Log question and response
+    const responseText = await genAIService.processQuestion(storedContent, userQuestion);
     logToFile(userQuestion, responseText);
 
     res.json({ response: responseText });
   } catch (error) {
-    console.error("Error processing user question:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("❌ Error processing user question:", error);
+    res.status(500).json({ error: "❌ Internal server error" });
   }
 });
-
 
 // API to fetch chat logs
 app.get("/fetch_chats", (req, res) => {
   fs.readFile(logFilePath, "utf8", (err, data) => {
     if (err) {
-      console.error("Error reading log file:", err);
-      return res.status(500).json({ error: "Failed to retrieve logs" });
+      console.error("❌ Error reading log file:", err);
+      return res.status(500).json({ error: "❌ Failed to retrieve logs" });
     }
     res.send(`<pre>${data}</pre>`);
   });
 });
 
-// Simple route
-app.get("/", (req, res) => {
-  res.render("index", { title: "Home | My Website" });
-});
-
-app.get("/about", (req, res) => {
-  res.render("about");
-});
-
-app.get("/features", (req, res) => {
-  res.render("features");
-});
-
-app.get("/contact", (req, res) => {
-  res.render("contact");
-});
+// Simple routes
+app.get("/", (req, res) => res.render("index", { title: "Home | My Website" }));
+app.get("/about", (req, res) => res.render("about"));
+app.get("/features", (req, res) => res.render("features"));
+app.get("/contact", (req, res) => res.render("contact"));
 
 // Fetch data from database
-app.get("/college", (req, res) => {
-  db.query("SELECT * FROM College", (err, results) => {
-    if (err) {
-      res.status(500).send("Error fetching colleges");
-      return;
-    }
+app.get("/college", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM College");
     res.json(results);
-  });
+  } catch (error) {
+    console.error("❌ Database Error fetching colleges:", error);
+    res.status(500).send("❌ Error fetching colleges");
+  }
 });
 
-app.get("/teacher", (req, res) => {
-  db.query("SELECT * FROM Teacher", (err, results) => {
-    if (err) {
-      res.status(500).send("Error fetching teachers");
-      return;
-    }
+app.get("/teacher", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM Teacher");
     res.json(results);
-  });
+  } catch (error) {
+    console.error("❌ Database Error fetching teachers:", error);
+    res.status(500).send("❌ Error fetching teachers");
+  }
 });
 
 // Start server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`🚀 Server running at http://localhost:${port}`);
 });
