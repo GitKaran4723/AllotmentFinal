@@ -197,6 +197,45 @@ router.post("/update/:id", ensureCollegeLoggedIn, async (req, res) => {
   }
 });
 
+// fetch college subjects
+router.get("/subjects", async (req, res) => {
+  try {
+    const [subjects] = await db.query(
+      "SELECT * FROM Subject ORDER BY subject_semester, subject_name"
+    );
+
+    // Group subjects by semester
+    const subjectsBySemester = [];
+    const semesterMap = new Map();
+
+    subjects.forEach((subject) => {
+      if (!semesterMap.has(subject.subject_semester)) {
+        semesterMap.set(subject.subject_semester, {
+          semester: subject.subject_semester,
+          theorySubjects: [],
+          practicalSubjects: [],
+        });
+      }
+
+      if (subject.is_practical) {
+        semesterMap
+          .get(subject.subject_semester)
+          .practicalSubjects.push(subject);
+      } else {
+        semesterMap.get(subject.subject_semester).theorySubjects.push(subject);
+      }
+    });
+
+    subjectsBySemester.push(...semesterMap.values());
+
+    // Render the page with the corrected data
+    res.render("college/subjects", { subjectsBySemester, college: req.session.college });
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).send("Error fetching subjects");
+  }
+});
+
 // Logout
 router.get("/logout", (req, res) => {
   req.session.destroy(() => {
