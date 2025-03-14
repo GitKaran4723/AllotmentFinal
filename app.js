@@ -33,38 +33,61 @@ app.use(session({
 }));
 
 // Middleware to log requests
-const requestLogFile = path.join(__dirname, "logs", "requests.log");
+const logDir = path.join(__dirname, "logs");
+const requestLogFile = path.join(logDir, "requests.log");
 
 // Ensure the logs directory exists
-if (!fs.existsSync(path.dirname(requestLogFile))) {
-  fs.mkdirSync(path.dirname(requestLogFile), { recursive: true });
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
 }
 
 app.use((req, res, next) => {
-  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  const logEntry = `[${new Date().toISOString()}] ${ip} ${req.method} ${req.url}\n`;
+  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+  // If behind a proxy, extract the first IP (client's real IP)
+  if (ip.includes(",")) {
+    ip = ip.split(",")[0].trim();
+  }
+
+  // Convert IPv6-mapped IPv4 addresses
+  if (ip.startsWith("::ffff:")) {
+    ip = ip.substring(7);
+  }
+
+  // Convert timestamp to Indian Standard Time (IST)
+  const now = new Date();
+  const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000)); // Convert UTC to IST
+  const formattedTime = istTime.toISOString().replace('T', ' ').split('.')[0] + ' IST';
+
+  const logEntry = `[${formattedTime}] ${ip} ${req.method} ${req.url}\n`;
 
   fs.appendFile(requestLogFile, logEntry, (err) => {
     if (err) console.error("❌ Error logging request:", err);
   });
 
-  console.log(logEntry.trim()); // Log to console as well
+  console.log(logEntry.trim()); // Log to console
   next();
 });
+
 
 app.use("/college", collegeRoutes);
 
 let storedContent = "";
 const githubUrl = "https://raw.githubusercontent.com/Monisha-07590/bcadata/refs/heads/main/projectdata";
 
-// Function to fetch and update content from GitHub
-const fetchGitHubContent = async () => {
-  try {
-    const response = await axios.get(githubUrl);
-    storedContent = response.data;
-    console.log("✅ GitHub content updated successfully");
-  } catch (error) {
-    console.error("❌ Error fetching GitHub content:", error);
+// Function to fetch and update content from GitHub with retry logic
+const fetchGitHubContent = async (retryCount = 3) => {
+  while (retryCount > 0) {
+    try {
+      const response = await axios.get(githubUrl);
+      storedContent = response.data;
+      console.log("✅ GitHub content updated successfully");
+      return;
+    } catch (error) {
+      console.error(`❌ Error fetching GitHub content (Attempts left: ${retryCount}):`, error);
+      retryCount--;
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
+    }
   }
 };
 
@@ -72,15 +95,15 @@ const fetchGitHubContent = async () => {
 fetchGitHubContent();
 setInterval(fetchGitHubContent, 5 * 60 * 1000); // Refresh every 5 minutes
 
-const logDir = path.join(__dirname, "..", "chatLogs");
-const logFilePath = path.join(logDir, "logs.json");
+const chatLogDir = path.join(__dirname, "..", "chatLogs");
+const logFilePath = path.join(chatLogDir, "logs.json");
 
-// Ensure the log directory exists
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir, { recursive: true });
+// Ensure the chat log directory exists
+if (!fs.existsSync(chatLogDir)) {
+  fs.mkdirSync(chatLogDir, { recursive: true });
 }
 
-// Function to log questions and responses to the log file
+// Function to log questions and responses
 const logToFile = (question, responseText) => {
   const logEntry = {
     timestamp: new Date().toISOString(),
@@ -89,7 +112,7 @@ const logToFile = (question, responseText) => {
   };
 
   fs.appendFile(logFilePath, JSON.stringify(logEntry, null, 2) + ",\n", (err) => {
-    if (err) console.error("❌ Error writing to log file:", err);
+    if (err) console.error("❌ Error writing to chat log file:", err);
   });
 };
 
@@ -135,7 +158,7 @@ app.get("/college", async (req, res) => {
     res.json(results);
   } catch (error) {
     console.error("❌ Database Error fetching colleges:", error);
-    res.status(500).send("❌ Error fetching colleges");
+    res.status(500).json({ error: "❌ Database Error fetching colleges" });
   }
 });
 
@@ -145,7 +168,7 @@ app.get("/teacher", async (req, res) => {
     res.json(results);
   } catch (error) {
     console.error("❌ Database Error fetching teachers:", error);
-    res.status(500).send("❌ Error fetching teachers");
+    res.status(500).json({ error: "❌ Database Error fetching teachers" });
   }
 });
 
