@@ -11,6 +11,7 @@ const db = require("./config/db").promise();
 const cors = require("cors");
 const session = require("express-session");
 const collegeRoutes = require("./routes/collegeRoutes");
+const subjects = require("./routes/subjects");
 
 const app = express();
 const port = 3000;
@@ -71,6 +72,7 @@ app.use((req, res, next) => {
 
 
 app.use("/college", collegeRoutes);
+app.use("/subjects", subjects);
 
 let storedContent = "";
 const githubUrl = "https://raw.githubusercontent.com/Monisha-07590/bcadata/refs/heads/main/projectdata";
@@ -93,7 +95,7 @@ const fetchGitHubContent = async (retryCount = 3) => {
 
 // Initial fetch on server startup
 fetchGitHubContent();
-setInterval(fetchGitHubContent, 5 * 60 * 1000); // Refresh every 5 minutes
+setInterval(fetchGitHubContent, 10 * 60 * 1000); // Refresh every 10 minutes
 
 const chatLogDir = path.join(__dirname, "..", "chatLogs");
 const logFilePath = path.join(chatLogDir, "logs.json");
@@ -150,6 +152,7 @@ app.get("/", (req, res) => res.render("index", { title: "Home | My Website" }));
 app.get("/about", (req, res) => res.render("about"));
 app.get("/features", (req, res) => res.render("features"));
 app.get("/contact", (req, res) => res.render("contact"));
+
 
 // Fetch data from database
 app.get("/college", async (req, res) => {

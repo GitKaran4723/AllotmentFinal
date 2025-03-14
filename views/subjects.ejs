@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects | BCA Examiner Allotment</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/subject.css">
+    <script src="/js/scripts.js"></script>
+</head>
+<body>
+
+    <%- include('partials/header') %>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>All Subjects</h1>
+            <p>View all subjects categorized by semester and type.</p>
+        </div>
+    </section>
+
+    <section class="subjects">
+        <div class="container">
+            <% subjectsBySemester.forEach((semesterData, index) => { %>
+                <!-- HR before new semester starts (except for first one) -->
+                <% if (index !== 0) { %>
+                    <hr class="semester-divider">
+                <% } %>
+
+                <h2>Semester <%= semesterData.semester %></h2>
+
+                <!-- Theory Subjects -->
+                <% if (semesterData.theorySubjects.length > 0) { %>
+                    <h3>Theory Subjects</h3>
+                    <div class="subject-grid">
+                        <% semesterData.theorySubjects.forEach(subject => { %>
+                            <div class="subject-card theory">
+                                <h4><%= subject.subject_name %></h4>
+                                <p>Subject Code: <strong><%= subject.subject_code %></strong></p>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } %>
+
+                <!-- HR Between Theory and Practical -->
+                <% if (semesterData.theorySubjects.length > 0 && semesterData.practicalSubjects.length > 0) { %>
+                    <hr class="section-divider">
+                <% } %>
+
+                <!-- Practical Subjects -->
+                <% if (semesterData.practicalSubjects.length > 0) { %>
+                    <h3>Practical Subjects</h3>
+                    <div class="subject-grid">
+                        <% semesterData.practicalSubjects.forEach(subject => { %>
+                            <div class="subject-card practical">
+                                <h4><%= subject.subject_name %></h4>
+                                <p>Subject Code: <strong><%= subject.subject_code %></strong></p>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } %>
+            <% }); %>
+        </div>
+    </section>
+
+    <%- include('partials/footer') %>
+
+</body>
+</html>
