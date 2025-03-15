@@ -21,6 +21,8 @@ router.get("/", (req, res) => {
     // Clear session messages after rendering
     req.session.successMessage = null;
     req.session.errorMessage = null;
+
+    console.log("Session value", req.session.successMessage);
 });
 
 // Handle contact form submission
