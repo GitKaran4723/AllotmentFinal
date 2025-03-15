@@ -26,33 +26,41 @@
                 <% if (index !== 0) { %>
                     <hr class="semester-divider">
                 <% } %>
-
+    
                 <h2>Semester <%= semesterData.semester %></h2>
-
+    
                 <!-- Theory Subjects -->
                 <% if (semesterData.theorySubjects.length > 0) { %>
                     <h3>Theory Subjects</h3>
                     <div class="subject-grid">
                         <% semesterData.theorySubjects.forEach(subject => { %>
                             <div class="subject-card theory">
+                                <!-- SEP or NEP Tag -->
+                                <div class="subject-tag <%= subject.is_sep ? 'sep' : 'nep' %>">
+                                    <%= subject.is_sep ? 'SEP' : 'NEP' %>
+                                </div>
                                 <h4><%= subject.subject_name %></h4>
                                 <p>Subject Code: <strong><%= subject.subject_code %></strong></p>
                             </div>
                         <% }); %>
                     </div>
                 <% } %>
-
+    
                 <!-- HR Between Theory and Practical -->
                 <% if (semesterData.theorySubjects.length > 0 && semesterData.practicalSubjects.length > 0) { %>
                     <hr class="section-divider">
                 <% } %>
-
+    
                 <!-- Practical Subjects -->
                 <% if (semesterData.practicalSubjects.length > 0) { %>
                     <h3>Practical Subjects</h3>
                     <div class="subject-grid">
                         <% semesterData.practicalSubjects.forEach(subject => { %>
                             <div class="subject-card practical">
+                                <!-- SEP or NEP Tag -->
+                                <div class="subject-tag <%= subject.is_sep ? 'sep' : 'nep' %>">
+                                    <%= subject.is_sep ? 'SEP' : 'NEP' %>
+                                </div>
                                 <h4><%= subject.subject_name %></h4>
                                 <p>Subject Code: <strong><%= subject.subject_code %></strong></p>
                             </div>
