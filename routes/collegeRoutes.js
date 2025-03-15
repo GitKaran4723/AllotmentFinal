@@ -5,7 +5,7 @@ const db = require("../config/db").promise(); // Use MySQL2's promise API
 
 // College Login Page
 router.get("/login", (req, res) => {
-  res.render("college_login");
+  res.render("college/college_login");
 });
 
 // Handle Login
@@ -13,7 +13,7 @@ router.post("/login", async (req, res) => {
   try {
     const { college_code, password } = req.body;
     if (!college_code || !password) {
-      return res.render("college_login", {
+      return res.render("college/college_login", {
         error: "❌ College Code and Password are required",
       });
     }
@@ -23,7 +23,7 @@ router.post("/login", async (req, res) => {
       [college_code]
     );
     if (results.length === 0) {
-      return res.render("college_login", { error: "❌ Invalid college code" });
+      return res.render("college/college_login", { error: "❌ Invalid college code" });
     }
 
     const college = results[0];
@@ -44,7 +44,7 @@ router.post("/login", async (req, res) => {
 
         return res.redirect("/college/set-password");
       } else {
-        return res.render("college_login", { error: "❌ Invalid password" });
+        return res.render("college/college_login", { error: "❌ Invalid password" });
       }
     }
 
@@ -62,7 +62,7 @@ router.post("/login", async (req, res) => {
 
       return res.redirect("/college/dashboard");
     } else {
-      return res.render("college_login", { error: "❌ Incorrect password" });
+      return res.render("college/college_login", { error: "❌ Incorrect password" });
     }
   } catch (error) {
     console.error("Login Error:", error);
@@ -80,7 +80,7 @@ function ensureCollegeLoggedIn(req, res, next) {
 
 // Password Setup Page
 router.get("/set-password", ensureCollegeLoggedIn, (req, res) => {
-  res.render("set_password");
+  res.render("college/set_password");
 });
 
 // Handle New Password
@@ -88,7 +88,7 @@ router.post("/set-password", ensureCollegeLoggedIn, async (req, res) => {
   try {
     const { new_password } = req.body;
     if (!new_password || new_password.length < 6) {
-      return res.render("set_password", {
+      return res.render("college/set_password", {
         error: "❌ Password must be at least 6 characters",
       });
     }
@@ -109,7 +109,7 @@ router.post("/set-password", ensureCollegeLoggedIn, async (req, res) => {
 
 // College Dashboard
 router.get("/dashboard", ensureCollegeLoggedIn, (req, res) => {
-  res.render("college_dashboard", { college: req.session.college });
+  res.render("college/college_dashboard", { college: req.session.college });
 });
 
 // College Profile Page
@@ -234,6 +234,43 @@ router.get("/subjects", async (req, res) => {
     console.error("Database error:", err);
     res.status(500).send("Error fetching subjects");
   }
+});
+
+// Route to display the contact page
+router.get("/contact", ensureCollegeLoggedIn,(req, res) => {
+    res.render("college/contact", { 
+        successMessage: req.session.successMessage || null, 
+        errorMessage: req.session.errorMessage || null ,
+        college: req.session.college 
+    });
+
+    // Clear session messages after rendering
+    req.session.successMessage = null;
+    req.session.errorMessage = null;
+});
+
+
+// Handle contact form submission in login
+router.post("/contact", async (req, res) => {
+    const { name, email, message } = req.body;
+
+    try {
+        // Insert into database
+        await db.query(
+            "INSERT INTO contact_details (name, email, message) VALUES (?, ?, ?)",
+            [name, email, message]
+        );
+
+        // Store success message in session
+        req.session.successMessage = "Your message has been received! We will get back to you soon.";
+
+    } catch (error) {
+        console.error("Database Error:", error);
+        req.session.errorMessage = "Failed to send message. Please try again.";
+    }
+
+    // Redirect back to the contact page
+    res.redirect("/college/contact");
 });
 
 // Logout

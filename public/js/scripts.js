@@ -1,39 +1,57 @@
 function toggleMenu() {
-    const nav = document.querySelector('nav');
-    const menuToggle = document.querySelector('.menu-toggle');
+  const nav = document.querySelector("nav");
+  const menuToggle = document.querySelector(".menu-toggle");
 
-    nav.classList.toggle('active');
+  nav.classList.toggle("active");
 
-    // Change icon
-    if (nav.classList.contains('active')) {
-        menuToggle.textContent = '×'; // Cross icon
-    } else {
-        menuToggle.textContent = '☰'; // Menu icon
-    }
+  // Change icon
+  if (nav.classList.contains("active")) {
+    menuToggle.textContent = "×"; // Cross icon
+  } else {
+    menuToggle.textContent = "☰"; // Menu icon
+  }
 }
 
 window.onload = function () {
-    window.scrollTo(0, 0);
+  window.scrollTo(0, 0);
 };
 
 // Close menu if clicked outside
-document.addEventListener('click', function (event) {
-    const nav = document.querySelector('nav');
-    const menuToggle = document.querySelector('.menu-toggle');
+document.addEventListener("click", function (event) {
+  const nav = document.querySelector("nav");
+  const menuToggle = document.querySelector(".menu-toggle");
 
-    const isClickInsideNav = nav.contains(event.target);
-    const isClickOnToggle = menuToggle.contains(event.target);
+  const isClickInsideNav = nav.contains(event.target);
+  const isClickOnToggle = menuToggle.contains(event.target);
 
-    if (!isClickInsideNav && !isClickOnToggle && nav.classList.contains('active')) {
-        nav.classList.remove('active');
-        menuToggle.textContent = '☰'; // Reset icon to menu
-    }
+  if (
+    !isClickInsideNav &&
+    !isClickOnToggle &&
+    nav.classList.contains("active")
+  ) {
+    nav.classList.remove("active");
+    menuToggle.textContent = "☰"; // Reset icon to menu
+  }
 });
 
 function closePopup() {
-    document.getElementById('errorPopup').style.display = 'none';
+  document.getElementById("errorPopup").style.display = "none";
+}
+setTimeout(() => {
+  const popup = document.getElementById("errorPopup");
+  if (popup) popup.style.display = "none";
+}, 5000); // Auto close after 5 seconds
+
+function closePopup() {
+  let popup = document.querySelector(".popup");
+  if (popup) {
+    popup.style.opacity = "0"; // Fade out effect
+    setTimeout(() => (popup.style.display = "none"), 300); // Hide after animation
   }
-  setTimeout(() => {
-    const popup = document.getElementById('errorPopup');
-    if (popup) popup.style.display = 'none';
-  }, 5000); // Auto close after 5 seconds
+}
+
+// Automatically hide the popup after 5 seconds
+setTimeout(() => {
+  let popup = document.querySelector(".popup");
+  if (popup) closePopup();
+}, 5000);

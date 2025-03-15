@@ -10,7 +10,7 @@
 <body>
 
     <!-- Private Header for logged-in colleges -->
-    <%- include('partials/header_private', { college: college }) %>
+    <%- include('../partials/header_private', { college: college }) %>
 
     <!-- Dashboard Welcome Section -->
     <section class="hero">
@@ -59,7 +59,7 @@
         </div>
     </section>
 
-    <%- include('partials/footer') %>
+    <%- include('../partials/footer_private') %>
 
 </body>
 </html>

@@ -12,6 +12,7 @@ const cors = require("cors");
 const session = require("express-session");
 const collegeRoutes = require("./routes/collegeRoutes");
 const subjects = require("./routes/subjects");
+const contact = require("./routes/contact");
 
 const app = express();
 const port = 3000;
@@ -27,11 +28,13 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || "your_secret_key",
-  resave: false,
-  saveUninitialized: false,
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your_secret_key",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 // Middleware to log requests
 const logDir = path.join(__dirname, "logs");
@@ -43,7 +46,7 @@ if (!fs.existsSync(logDir)) {
 }
 
 app.use((req, res, next) => {
-  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  let ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
   // If behind a proxy, extract the first IP (client's real IP)
   if (ip.includes(",")) {
@@ -57,8 +60,9 @@ app.use((req, res, next) => {
 
   // Convert timestamp to Indian Standard Time (IST)
   const now = new Date();
-  const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000)); // Convert UTC to IST
-  const formattedTime = istTime.toISOString().replace('T', ' ').split('.')[0] + ' IST';
+  const istTime = new Date(now.getTime() + 5.5 * 60 * 60 * 1000); // Convert UTC to IST
+  const formattedTime =
+    istTime.toISOString().replace("T", " ").split(".")[0] + " IST";
 
   const logEntry = `[${formattedTime}] ${ip} ${req.method} ${req.url}\n`;
 
@@ -70,12 +74,13 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use("/college", collegeRoutes);
 app.use("/subjects", subjects);
+app.use("/contact", contact);
 
 let storedContent = "";
-const githubUrl = "https://raw.githubusercontent.com/Monisha-07590/bcadata/refs/heads/main/projectdata";
+const githubUrl =
+  "https://raw.githubusercontent.com/Monisha-07590/bcadata/refs/heads/main/projectdata";
 
 // Function to fetch and update content from GitHub with retry logic
 const fetchGitHubContent = async (retryCount = 3) => {
@@ -86,9 +91,12 @@ const fetchGitHubContent = async (retryCount = 3) => {
       console.log("✅ GitHub content updated successfully");
       return;
     } catch (error) {
-      console.error(`❌ Error fetching GitHub content (Attempts left: ${retryCount}):`, error);
+      console.error(
+        `❌ Error fetching GitHub content (Attempts left: ${retryCount}):`,
+        error
+      );
       retryCount--;
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
     }
   }
 };
@@ -113,9 +121,13 @@ const logToFile = (question, responseText) => {
     response: responseText,
   };
 
-  fs.appendFile(logFilePath, JSON.stringify(logEntry, null, 2) + ",\n", (err) => {
-    if (err) console.error("❌ Error writing to chat log file:", err);
-  });
+  fs.appendFile(
+    logFilePath,
+    JSON.stringify(logEntry, null, 2) + ",\n",
+    (err) => {
+      if (err) console.error("❌ Error writing to chat log file:", err);
+    }
+  );
 };
 
 // API to process user questions using stored content
@@ -126,7 +138,10 @@ app.post("/ask-gemini", async (req, res) => {
       return res.status(400).json({ error: "❌ Question is required" });
     }
 
-    const responseText = await genAIService.processQuestion(storedContent, userQuestion);
+    const responseText = await genAIService.processQuestion(
+      storedContent,
+      userQuestion
+    );
     logToFile(userQuestion, responseText);
 
     res.json({ response: responseText });
@@ -150,9 +165,8 @@ app.get("/fetch_chats", (req, res) => {
 // Simple routes
 app.get("/", (req, res) => res.render("index", { title: "Home | My Website" }));
 app.get("/about", (req, res) => res.render("about"));
-app.get("/features", (req, res) => res.render("features"));
-app.get("/contact", (req, res) => res.render("contact"));
 
+app.get("/contact", (req, res) => res.render("contact"));
 
 // Fetch data from database
 app.get("/college", async (req, res) => {
