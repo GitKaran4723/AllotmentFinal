@@ -232,7 +232,7 @@ router.get("/subjects", async (req, res) => {
     res.render("college/subjects", { subjectsBySemester, college: req.session.college });
   } catch (err) {
     console.error("Database error:", err);
-    res.status(500).send("Error fetching subjects");
+    res.status(500).send("Error fetching subjects <strong>please Reload</strong>");
   }
 });
 

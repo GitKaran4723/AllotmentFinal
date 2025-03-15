@@ -1,6 +1,51 @@
 /* General Reset */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+#password {
+    width: 100%;
+    padding: 12px 40px 12px 12px; /* space for icon */
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1em;
+}
+.toggle-password-btn {
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #f0a500;
+}
+
+/* Tooltip */
+.toggle-password-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 120%;
+    right: 50%;
+    transform: translateX(50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.toggle-password-btn:hover::after {
+    opacity: 1;
+}
 
 * {
   margin: 0;

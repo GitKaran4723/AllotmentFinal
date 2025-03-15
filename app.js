@@ -168,6 +168,16 @@ app.get("/about", (req, res) => res.render("about"));
 
 app.get("/contact", (req, res) => res.render("contact"));
 
+// Serve the Terms & Conditions Page
+app.get("/terms", (req, res) => {
+  res.render("terms");
+});
+
+// Serve the privacy
+app.get("/privacy-policy", (req, res) => {
+  res.render("privacy_policy");
+});
+
 // Fetch data from database
 app.get("/college", async (req, res) => {
   try {

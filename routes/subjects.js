@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
 
     } catch (err) {
         console.error("Database error:", err);
-        res.status(500).send("Error fetching subjects");
+        res.status(500).send("Error fetching subjects <strong>please Reload</strong>");
     }
 });
 
