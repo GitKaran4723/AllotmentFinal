@@ -1,0 +1,196 @@
+/* General Styles */
+body {
+    font-family: "Poppins", sans-serif;
+    background: #121212;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+.teacher-form-hero {
+    text-align: center;
+    padding: 60px 20px;
+    background: #1e1e1e;
+    box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+    margin-top: 60px;
+}
+
+.teacher-form-hero h1 {
+    color: #f0a500;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+/* Form Container */
+.teacher-form-container {
+    max-width: 800px;
+    margin: 50px auto;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Form Grid Layout */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 1em;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    background: #333;
+    color: #fff;
+}
+
+/* Table Styles */
+.subject-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.subject-table thead {
+    background: #f0a500;
+    color: #121212;
+}
+
+.subject-table th, .subject-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    text-align: left;
+}
+
+/* Checkbox Alignment */
+.teacher-form-checkbox-label {
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+    padding: 5px 0;
+}
+
+.teacher-form-checkbox-label input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 12px;
+}
+
+/* Submit Button */
+.teacher-form-btn {
+    background: #f0a500;
+    color: #121212;
+    padding: 12px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    margin-top: 15px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%;
+}
+
+.teacher-form-btn:hover {
+    background: #ffb700;
+}
+
+/* Popup Styling */
+.popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.success-popup {
+    width: 80%;
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+
+.error-popup {
+    background-color: #ff4d4d; /* Red */
+    color: white;
+}
+
+/* Pop-up Notification */
+.popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: fadeIn 0.5s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* Green Success Pop-up */
+.success-popup {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+/* Red Error Pop-up */
+.error-popup {
+    background-color: #D32F2F;
+    color: white;
+    font-weight: bold;
+}
+
+/* Yellow Warning Pop-up */
+.warning-popup {
+    background-color: #FFC107;
+    color: black;
+    font-weight: bold;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .teacher-form-container {
+        max-width: 90%;
+    }
+
+    .subject-table th, .subject-table td {
+        padding: 8px;
+    }
+}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Registration</title>
+    <link rel="stylesheet" href="css/register-teacher-form.css">
+</head>
+<body>
+    
+    <%- include('../partials/header') %>
+
+<!-- Success Pop-up -->
+<% if (success) { %>
+    <div class="popup success-popup" id="successPopup">
+        ✅ Teacher submitted successfully!
+    </div>
+<% } %>
+
+<!-- Duplicate Phone Number Error -->
+<% if (error === "duplicate") { %>
+    <div class="popup error-popup" id="errorPopup">
+        ❌ Error: Phone number already exists!
+    </div>
+<% } %>
+
+<!-- Validation Error (Missing Required Fields) -->
+<% if (error === "validation") { %>
+    <div class="popup warning-popup" id="errorPopup">
+        ⚠️ Please fill in all required fields!
+    </div>
+<% } %>
+
+<!-- Unknown Error -->
+<% if (error === "unknown") { %>
+    <div class="popup error-popup" id="errorPopup">
+        🚨 Something went wrong. Please try again later.
+    </div>
+<% } %>
+
+    
+    
+
+    <div class="teacher-form-hero">
+        <div class="teacher-form-hero-content">
+            <h1>Teacher Registration</h1>
+            <p>Fill in the details below to register as an examiner.</p>
+        </div>
+    </div>
+
+    <section class="teacher-form-container">
+        <form action="/register-teacher" method="POST">
+            <div class="form-group">
+                <label for="teacher_name">Full Name:</label>
+                <input type="text" id="teacher_name" name="teacher_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="teacher_gender">Gender:</label>
+                <select id="teacher_gender" name="teacher_gender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="teacher_phone">Phone Number:</label>
+                <input type="text" id="teacher_phone" name="teacher_phone" required>
+            </div>
+
+            <div class="form-group">
+                <label for="college_id">College:</label>
+                <select id="college_id" name="college_id">
+                    <% colleges.forEach(college => { %>
+                        <option value="<%= college.college_id %>"><%= college.college_name %></option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="teacher_address">Address:</label>
+                <textarea id="teacher_address" name="teacher_address"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="teacher_pincode">Pincode:</label>
+                <select id="teacher_pincode" name="teacher_pincode">
+                    <% pincodes.forEach(pincode => { %>
+                        <option value="<%= pincode.pincode %>"><%= pincode.pincode %></option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="years_experience">Years of Experience:</label>
+                <input type="number" id="years_experience" name="years_experience" required>
+            </div>
+
+            <h2>Practical Exam Specialization:</h2>
+            <% let currentSem = null; %>
+            <% practicalSubjects.forEach(subject => { %>
+                <% if (currentSem !== subject.subject_semester) { %>
+                    <% if (currentSem !== null) { %></tbody></table><% } %>
+                    <table class="subject-table">
+                        <thead>
+                            <tr><th colspan="2">Semester <%= subject.subject_semester %></th></tr>
+                        </thead>
+                        <tbody>
+                <% currentSem = subject.subject_semester; %>
+                <% } %>
+                <tr>
+                    <td>
+                        <input type="checkbox" name="practical_subjects" value="<%= subject.subject_id %>">
+                    </td>
+                    <td><%= subject.subject_name %></td>
+                </tr>
+            <% }); %>
+            <% if (currentSem !== null) { %></tbody></table><% } %>
+
+            <h2>Theory Exam Specialization:</h2>
+            <% currentSem = null; %>
+            <% theorySubjects.forEach(subject => { %>
+                <% if (currentSem !== subject.subject_semester) { %>
+                    <% if (currentSem !== null) { %></tbody></table><% } %>
+                    <table class="subject-table">
+                        <thead>
+                            <tr><th colspan="2">Semester <%= subject.subject_semester %></th></tr>
+                        </thead>
+                        <tbody>
+                <% currentSem = subject.subject_semester; %>
+                <% } %>
+                <tr>
+                    <td>
+                        <input type="checkbox" name="theory_subjects" value="<%= subject.subject_id %>">
+                    </td>
+                    <td><%= subject.subject_name %></td>
+                </tr>
+            <% }); %>
+            <% if (currentSem !== null) { %></tbody></table><% } %>
+
+            <button type="submit" class="teacher-form-btn">Submit</button>
+        </form>
+    </section>
+
+    <%- include('../partials/footer') %>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const popups = document.querySelectorAll(".popup");
+            popups.forEach(popup => {
+                setTimeout(() => {
+                    popup.style.opacity = "0";
+                    setTimeout(() => popup.remove(), 500);
+                }, 3000); // Hide after 3 seconds
+            });
+        });
+    </script>
+    
+</body>
+</html>

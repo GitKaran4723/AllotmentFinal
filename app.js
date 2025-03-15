@@ -13,6 +13,7 @@ const session = require("express-session");
 const collegeRoutes = require("./routes/collegeRoutes");
 const subjects = require("./routes/subjects");
 const contact = require("./routes/contact");
+const teacher = require("./routes/teachers");
 
 const app = express();
 const port = 3000;
@@ -77,6 +78,7 @@ app.use((req, res, next) => {
 app.use("/college", collegeRoutes);
 app.use("/subjects", subjects);
 app.use("/contact", contact);
+app.use("/", teacher);
 
 let storedContent = "";
 const githubUrl =
