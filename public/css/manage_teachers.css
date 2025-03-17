@@ -1,0 +1,126 @@
+/* General Page Styling */
+body {
+    background-color: #121212; /* Dark theme */
+    color: #ffffff;
+    margin-top: 120px;
+}
+
+/* Container Styling */
+.container {
+    max-width: 90%;
+    margin: auto;
+}
+
+/* Teacher Cards */
+.teacher-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+.teacher-card {
+    background-color: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    width: calc(50% - 10px); /* Two columns */
+    border: 1px solid #333;
+    transition: transform 0.2s ease-in-out;
+}
+
+.teacher-card:hover {
+    transform: scale(1.03);
+    border-color: #ffc107;
+}
+
+.teacher-card h5 {
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    color: #ffd700;
+}
+
+.teacher-card p {
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+}
+
+/* Buttons */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-edit {
+    background-color: #ff9800;
+    color: white;
+    border: none;
+}
+
+.btn-edit:hover {
+    background-color: #e68900;
+}
+
+.btn-approve {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+.btn-approve:hover {
+    background-color: #218838;
+}
+
+/* Form Inside Cards */
+.teacher-form {
+    background-color: #222;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+}
+
+.teacher-form input,
+.teacher-form textarea,
+.teacher-form select {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 8px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #333;
+    color: white;
+}
+
+/* Toggle Form Visibility */
+.show-form {
+    display: block !important;
+}
+
+/* Section Headers */
+.card-header {
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 10px;
+}
+
+/* Pending Approval Section */
+.bg-warning {
+    background-color: #ffc107 !important;
+    color: #fff !important;
+}
+
+/* Approved Section */
+.bg-success {
+    background-color: #28a745 !important;
+    color: #fff !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .teacher-card {
+        width: 100%;
+    }
+}

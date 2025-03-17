@@ -1,0 +1,73 @@
+<link rel="stylesheet" href="/css/manage_teachers.css">
+
+<%- include('../partials/header_private', { college: college }) %>
+
+<div class="container">
+    <h2 class="text-center">Manage Teachers</h2>
+    
+    <!-- Not Approved Teachers -->
+    <div class="card mt-4">
+        <div class="card-header bg-warning">Pending Approval</div>
+        <div class="card-body teacher-container">
+            <% teachers.forEach(teacher => { %>
+                <% if (teacher.approved === 'No') { %>
+                    <div class="teacher-card">
+                        <h5><%= teacher.teacher_name %> - <%= teacher.teacher_gender %></h5>
+                        <p><strong>Phone:</strong> <%= teacher.teacher_phone %></p>
+                        <p><strong>Address:</strong> <%= teacher.teacher_address %>, <strong>Pincode:</strong> <%= teacher.teacher_pincode %></p>
+                        <p><strong>Specialization (Practical):</strong> <%= teacher.practical_subjects || 'None' %></p>
+                        <p><strong>Specialization (Theory):</strong> <%= teacher.theory_subjects || 'None' %></p>
+                        
+                        <!-- Buttons -->
+                        <button class="btn-sm btn-edit" onclick="toggleForm('form<%= teacher.teacher_id %>')">Edit</button>
+                        <form action="/teachers/approve/<%= teacher.teacher_id %>" method="POST" class="d-inline">
+                            <button type="submit" class="btn-sm btn-approve">Approve</button>
+                        </form>
+
+                        <!-- Edit Form (Hidden by Default) -->
+                        <div id="form<%= teacher.teacher_id %>" class="teacher-form">
+                            <form action="/teachers/update/<%= teacher.teacher_id %>" method="POST">
+                                <input type="text" name="teacher_name" value="<%= teacher.teacher_name %>">
+                                <select name="teacher_gender">
+                                    <option value="Male" <%= teacher.teacher_gender === 'Male' ? 'selected' : '' %>>Male</option>
+                                    <option value="Female" <%= teacher.teacher_gender === 'Female' ? 'selected' : '' %>>Female</option>
+                                    <option value="Other" <%= teacher.teacher_gender === 'Other' ? 'selected' : '' %>>Other</option>
+                                </select>
+                                <input type="text" name="teacher_phone" value="<%= teacher.teacher_phone %>">
+                                <textarea name="teacher_address"><%= teacher.teacher_address %></textarea>
+                                <input type="text" name="teacher_pincode" value="<%= teacher.teacher_pincode %>">
+                                <button type="submit" class="btn-sm btn-save">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                <% } %>
+            <% }); %>
+        </div>
+    </div>
+
+    <!-- Approved Teachers -->
+    <div class="card mt-4">
+        <div class="card-header bg-success">Approved Teachers</div>
+        <div class="card-body teacher-container">
+            <% teachers.forEach(teacher => { %>
+                <% if (teacher.approved === 'Yes') { %>
+                    <div class="teacher-card">
+                        <h5><%= teacher.teacher_name %> - <%= teacher.teacher_gender %></h5>
+                        <p><strong>Phone:</strong> <%= teacher.teacher_phone %></p>
+                        <p><strong>Address:</strong> <%= teacher.teacher_address %>, <strong>Pincode:</strong> <%= teacher.teacher_pincode %></p>
+                        <p><strong>Specialization (Practical):</strong> <%= teacher.practical_subjects || 'None' %></p>
+                        <p><strong>Specialization (Theory):</strong> <%= teacher.theory_subjects || 'None' %></p>
+                    </div>
+                <% } %>
+            <% }); %>
+        </div>
+    </div>
+</div>
+<%- include('../partials/footer_private') %>
+
+<script>
+    function toggleForm(id) {
+        var form = document.getElementById(id);
+        form.classList.toggle("show-form");
+    }
+</script>

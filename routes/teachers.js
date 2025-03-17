@@ -52,8 +52,6 @@ router.get("/register-teacher", async (req, res) => {
     }
 });
 
-
-
 // Route to handle form submission
 // Route to handle teacher registration
 router.post("/register-teacher", async (req, res) => {

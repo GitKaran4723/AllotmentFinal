@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
+const session = require("express-session");
 const db = require("../config/db").promise(); // Use MySQL2's promise API
 
 // College Login Page
@@ -23,7 +24,9 @@ router.post("/login", async (req, res) => {
       [college_code]
     );
     if (results.length === 0) {
-      return res.render("college/college_login", { error: "❌ Invalid college code" });
+      return res.render("college/college_login", {
+        error: "❌ Invalid college code",
+      });
     }
 
     const college = results[0];
@@ -44,7 +47,9 @@ router.post("/login", async (req, res) => {
 
         return res.redirect("/college/set-password");
       } else {
-        return res.render("college/college_login", { error: "❌ Invalid password" });
+        return res.render("college/college_login", {
+          error: "❌ Invalid password",
+        });
       }
     }
 
@@ -62,7 +67,9 @@ router.post("/login", async (req, res) => {
 
       return res.redirect("/college/dashboard");
     } else {
-      return res.render("college/college_login", { error: "❌ Incorrect password" });
+      return res.render("college/college_login", {
+        error: "❌ Incorrect password",
+      });
     }
   } catch (error) {
     console.error("Login Error:", error);
@@ -229,49 +236,132 @@ router.get("/subjects", async (req, res) => {
     subjectsBySemester.push(...semesterMap.values());
 
     // Render the page with the corrected data
-    res.render("college/subjects", { subjectsBySemester, college: req.session.college });
+    res.render("college/subjects", {
+      subjectsBySemester,
+      college: req.session.college,
+    });
   } catch (err) {
     console.error("Database error:", err);
-    res.status(500).send("Error fetching subjects <strong>please Reload</strong>");
+    res
+      .status(500)
+      .send("Error fetching subjects <strong>please Reload</strong>");
   }
 });
 
 // Route to display the contact page
-router.get("/contact", ensureCollegeLoggedIn,(req, res) => {
-    res.render("college/contact", { 
-        successMessage: req.session.successMessage || null, 
-        errorMessage: req.session.errorMessage || null ,
-        college: req.session.college 
-    });
+router.get("/contact", ensureCollegeLoggedIn, (req, res) => {
+  res.render("college/contact", {
+    successMessage: req.session.successMessage || null,
+    errorMessage: req.session.errorMessage || null,
+    college: req.session.college,
+  });
 
-    // Clear session messages after rendering
-    req.session.successMessage = null;
-    req.session.errorMessage = null;
+  // Clear session messages after rendering
+  req.session.successMessage = null;
+  req.session.errorMessage = null;
 });
-
 
 // Handle contact form submission in login
 router.post("/contact", async (req, res) => {
-    const { name, email, message } = req.body;
+  const { name, email, message } = req.body;
 
-    try {
-        // Insert into database
-        await db.query(
-            "INSERT INTO contact_details (name, email, message) VALUES (?, ?, ?)",
-            [name, email, message]
-        );
+  try {
+    // Insert into database
+    await db.query(
+      "INSERT INTO contact_details (name, email, message) VALUES (?, ?, ?)",
+      [name, email, message]
+    );
 
-        // Store success message in session
-        req.session.successMessage = "Your message has been received! We will get back to you soon.";
+    // Store success message in session
+    req.session.successMessage =
+      "Your message has been received! We will get back to you soon.";
+  } catch (error) {
+    console.error("Database Error:", error);
+    req.session.errorMessage = "Failed to send message. Please try again.";
+  }
 
-    } catch (error) {
-        console.error("Database Error:", error);
-        req.session.errorMessage = "Failed to send message. Please try again.";
+  // Redirect back to the contact page
+  res.redirect("/college/contact");
+});
+
+// Get all teachers from the logged-in college
+router.get("/teacher/manage", ensureCollegeLoggedIn, async (req, res) => {
+  const collegeId = req.session.college.college_id;
+
+  console.log("College ID",collegeId);
+
+  try {
+    const [teachers] = await db.query(
+      `SELECT t.teacher_id, t.teacher_name, t.teacher_gender, t.teacher_phone, 
+                  t.teacher_address, t.teacher_pincode, t.approved, 
+                  GROUP_CONCAT(DISTINCT pe.subject_id) AS practical_subjects,
+                  GROUP_CONCAT(DISTINCT te.subject_id) AS theory_subjects
+           FROM Teacher t
+           LEFT JOIN Practical_Exam_Specialization pe ON t.teacher_id = pe.teacher_id
+           LEFT JOIN Theory_Exam_Specialization te ON t.teacher_id = te.teacher_id
+           WHERE t.college_id = ?
+           GROUP BY t.teacher_id`,
+      [collegeId]
+    );
+
+    console.log("Teachers is",teachers);
+
+    res.render("college/manage_teachers", {
+      teachers,
+      college: req.session.college,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching teachers.");
+  }
+});
+
+// Approve teacher
+router.post("/teacher/approve/:id", ensureCollegeLoggedIn, async (req, res) => {
+  const teacherId = req.params.id;
+
+  try {
+    await db.query("UPDATE Teacher SET approved = 'Yes' WHERE teacher_id = ?", [
+      teacherId,
+    ]);
+    res.redirect("/teachers/manage");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error approving teacher.");
+  }
+});
+
+// Update teacher details
+router.post("/teachers/update/:id", ensureCollegeLoggedIn, async (req, res) => {
+  console.log("updating teacher");
+  const teacherId = req.params.id;
+  const { teacher_name, teacher_gender, teacher_phone, teacher_address, teacher_pincode } = req.body;
+
+  try {
+    // Ensure all required fields are provided
+    if (!teacher_name || !teacher_gender || !teacher_phone || !teacher_address || !teacher_pincode) {
+      return res.status(400).send("❌ All fields are required");
     }
 
-    // Redirect back to the contact page
-    res.redirect("/college/contact");
+    // Update teacher details in database
+    await db.query(
+      `UPDATE Teacher 
+       SET teacher_name = ?, teacher_gender = ?, teacher_phone = ?, 
+           teacher_address = ?, teacher_pincode = ?
+       WHERE teacher_id = ?`,
+      [teacher_name, teacher_gender, teacher_phone, teacher_address, teacher_pincode, teacherId]
+    );
+
+    // Redirect back to the manage teachers page
+    res.redirect("/college/teacher/manage");
+  } catch (error) {
+    console.error("Error updating teacher details:", error);
+    res.status(500).send("❌ Database update error");
+  }
 });
+
+
+module.exports = router;
 
 // Logout
 router.get("/logout", (req, res) => {
