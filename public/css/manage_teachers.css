@@ -32,6 +32,7 @@ body {
 .teacher-card:hover {
     transform: scale(1.03);
     border-color: #ffc107;
+    cursor: pointer;
 }
 
 .teacher-card h5 {
@@ -117,6 +118,293 @@ body {
     background-color: #28a745 !important;
     color: #fff !important;
 }
+
+/* Button group alignment */
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Modal Styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(18, 18, 18, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0 20px #000;
+    position: relative;
+    color: white;
+}
+
+.modal-content h4 {
+    margin-bottom: 15px;
+    color: #ffd700;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+/* Close Button */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #ccc;
+}
+
+.close:hover {
+    color: #fff;
+}
+
+/* Blur and lock scroll when modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
+body.modal-open #main-content {
+    filter: blur(4px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+.empty-message {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+    color: #ffd700;
+    text-align: center;
+    width: 100%;
+}
+
+.share-box {
+    background: #333;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px auto;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.share-box code {
+    color: #00ffcc;
+    font-size: 0.9rem;
+    word-break: break-all;
+}
+
+.share-box button {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #ff9800;
+    color: #fff;
+    cursor: pointer;
+}
+
+.share-box button:hover {
+    background-color: #e68900;
+}
+
+.note {
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.subject-list {
+    padding-left: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.subject-list > li {
+    margin-bottom: 4px;
+}
+
+.subject-list ul {
+    list-style-type: circle;
+    padding-left: 1.5rem;
+    margin-top: 2px;
+}
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(18, 18, 18, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+    overflow: auto; /* Ensures background scroll is blocked */
+}
+
+
+
+.modal-content {
+    background-color: #1e1e1e;
+    padding: 25px;
+    border-radius: 10px;
+    width: 95%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 20px #000;
+    color: white;
+}
+
+.modal-title {
+    font-size: 1.2rem;
+    color: #ffd700;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 8px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background: #2a2a2a;
+    color: white;
+}
+
+.form-grid textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.subject-section h5 {
+    font-size: 1.1rem;
+    margin-top: 15px;
+    color: #ffc107;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+}
+
+.semester-box {
+    margin: 10px 0;
+    padding-left: 10px;
+}
+
+.semester-box h6 {
+    margin-bottom: 6px;
+    color: #00d1b2;
+    font-weight: bold;
+}
+
+.semester-box label {
+    display: block;
+    margin-bottom: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.tag {
+    background-color: #444;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+    color: #ddd;
+}
+
+.modal-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+.specializations {
+    margin-top: 15px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding-left: 10px;
+}
+
+.spec-title {
+    font-weight: bold;
+    font-size: 1rem;
+    margin: 10px 0 6px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #333;
+}
+
+.spec-title.practical {
+    color: #00ffc3; /* Aqua-green */
+}
+
+.spec-title.theory {
+    color: #ffa500; /* Orange-yellow */
+}
+
+.semester-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.semester-list > li {
+    margin-bottom: 6px;
+}
+
+.sem-label {
+    color: #66ccff;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.subject-list {
+    list-style-type: circle;
+    margin-left: 18px;
+    padding-left: 5px;
+}
+
+.subject-list li {
+    margin-bottom: 4px;
+}
+
+
+
+
 
 /* Responsive */
 @media (max-width: 768px) {

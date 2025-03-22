@@ -204,6 +204,20 @@ router.post("/update/:id", ensureCollegeLoggedIn, async (req, res) => {
   }
 });
 
+//
+router.post("/teacher/delete/:id", (req, res) => {
+  const teacherId = req.params.id;
+
+  const sql = `DELETE FROM Teacher WHERE teacher_id = ? AND approved = 'No'`;
+  db.query(sql, [teacherId], (err, result) => {
+    if (err) {
+      console.error("Error deleting teacher:", err);
+      return res.status(500).send("Database error");
+    }
+    res.redirect("/college/teacher/manage");
+  });
+});
+
 // fetch college subjects
 router.get("/subjects", async (req, res) => {
   try {
@@ -288,26 +302,35 @@ router.post("/contact", async (req, res) => {
 router.get("/teacher/manage", ensureCollegeLoggedIn, async (req, res) => {
   const collegeId = req.session.college.college_id;
 
-  console.log("College ID",collegeId);
+  console.log("College ID", collegeId);
 
   try {
     const [teachers] = await db.query(
-      `SELECT t.teacher_id, t.teacher_name, t.teacher_gender, t.teacher_phone, 
-                  t.teacher_address, t.teacher_pincode, t.approved, 
-                  GROUP_CONCAT(DISTINCT pe.subject_id) AS practical_subjects,
-                  GROUP_CONCAT(DISTINCT te.subject_id) AS theory_subjects
-           FROM Teacher t
-           LEFT JOIN Practical_Exam_Specialization pe ON t.teacher_id = pe.teacher_id
-           LEFT JOIN Theory_Exam_Specialization te ON t.teacher_id = te.teacher_id
-           WHERE t.college_id = ?
-           GROUP BY t.teacher_id`,
+      `SELECT 
+        t.teacher_id, t.teacher_name, t.teacher_gender, t.teacher_phone, 
+        t.teacher_address, t.teacher_pincode, t.approved, 
+        GROUP_CONCAT(DISTINCT CONCAT_WS('|', s1.subject_name, s1.subject_semester) ORDER BY s1.subject_semester) AS practical_subjects,
+        GROUP_CONCAT(DISTINCT CONCAT_WS('|', s2.subject_name, s2.subject_semester) ORDER BY s2.subject_semester) AS theory_subjects
+      FROM Teacher t
+      LEFT JOIN Practical_Exam_Specialization pe ON t.teacher_id = pe.teacher_id
+      LEFT JOIN Subject s1 ON pe.subject_id = s1.subject_id
+      LEFT JOIN Theory_Exam_Specialization te ON t.teacher_id = te.teacher_id
+      LEFT JOIN Subject s2 ON te.subject_id = s2.subject_id
+      WHERE t.college_id = ?
+      GROUP BY t.teacher_id
+      `,
       [collegeId]
     );
 
-    console.log("Teachers is",teachers);
+
+    const [allSubjects] = await db.query("SELECT * FROM Subject ORDER BY subject_semester, subject_name");
+
+    const [pincodes] = await db.query("SELECT pincode FROM bangalore_pincodes ORDER BY pincode ASC");
 
     res.render("college/manage_teachers", {
       teachers,
+      allSubjects,
+      pincodes,
       college: req.session.college,
     });
   } catch (error) {
@@ -324,7 +347,7 @@ router.post("/teacher/approve/:id", ensureCollegeLoggedIn, async (req, res) => {
     await db.query("UPDATE Teacher SET approved = 'Yes' WHERE teacher_id = ?", [
       teacherId,
     ]);
-    res.redirect("/teachers/manage");
+    res.redirect("college/teacher/manage");
   } catch (error) {
     console.error(error);
     res.status(500).send("Error approving teacher.");
@@ -333,35 +356,87 @@ router.post("/teacher/approve/:id", ensureCollegeLoggedIn, async (req, res) => {
 
 // Update teacher details
 router.post("/teachers/update/:id", ensureCollegeLoggedIn, async (req, res) => {
-  console.log("updating teacher");
+  console.log("Updating teacher...");
   const teacherId = req.params.id;
-  const { teacher_name, teacher_gender, teacher_phone, teacher_address, teacher_pincode } = req.body;
+
+  const {
+    teacher_name,
+    teacher_gender,
+    teacher_phone,
+    teacher_address,
+    teacher_pincode,
+    theory_subjects = [],
+    practical_subjects = [],
+  } = req.body;
 
   try {
-    // Ensure all required fields are provided
-    if (!teacher_name || !teacher_gender || !teacher_phone || !teacher_address || !teacher_pincode) {
+    // Ensure required fields
+    if (
+      !teacher_name ||
+      !teacher_gender ||
+      !teacher_phone ||
+      !teacher_address ||
+      !teacher_pincode
+    ) {
       return res.status(400).send("❌ All fields are required");
     }
 
-    // Update teacher details in database
+    // Update basic teacher info
     await db.query(
       `UPDATE Teacher 
        SET teacher_name = ?, teacher_gender = ?, teacher_phone = ?, 
            teacher_address = ?, teacher_pincode = ?
        WHERE teacher_id = ?`,
-      [teacher_name, teacher_gender, teacher_phone, teacher_address, teacher_pincode, teacherId]
+      [
+        teacher_name,
+        teacher_gender,
+        teacher_phone,
+        teacher_address,
+        teacher_pincode,
+        teacherId,
+      ]
     );
 
-    // Redirect back to the manage teachers page
+    // Clear old subject specializations
+    await db.query("DELETE FROM Theory_Exam_Specialization WHERE teacher_id = ?", [teacherId]);
+    await db.query("DELETE FROM Practical_Exam_Specialization WHERE teacher_id = ?", [teacherId]);
+
+    // Re-insert theory subjects
+    if (Array.isArray(theory_subjects)) {
+      const theoryData = Array.isArray(theory_subjects)
+        ? theory_subjects
+        : [theory_subjects]; // Handle single select
+
+      for (const subjectId of theoryData) {
+        await db.query(
+          "INSERT INTO Theory_Exam_Specialization (teacher_id, subject_id) VALUES (?, ?)",
+          [teacherId, subjectId]
+        );
+      }
+    }
+
+    // Re-insert practical subjects
+    if (Array.isArray(practical_subjects)) {
+      const practicalData = Array.isArray(practical_subjects)
+        ? practical_subjects
+        : [practical_subjects]; // Handle single select
+
+      for (const subjectId of practicalData) {
+        await db.query(
+          "INSERT INTO Practical_Exam_Specialization (teacher_id, subject_id) VALUES (?, ?)",
+          [teacherId, subjectId]
+        );
+      }
+    }
+
+    // Success redirect
     res.redirect("/college/teacher/manage");
   } catch (error) {
     console.error("Error updating teacher details:", error);
-    res.status(500).send("❌ Database update error");
+    res.status(500).send("❌ Failed to update teacher info and specialization.");
   }
 });
 
-
-module.exports = router;
 
 // Logout
 router.get("/logout", (req, res) => {
